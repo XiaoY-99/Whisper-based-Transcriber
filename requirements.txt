@@ -1,0 +1,5 @@
+openai-whisper
+torch==2.8.0+cu129
+watchdog==6.0.0
+tqdm==4.67.1
+opencc-python-reimplemented==0.1.7
