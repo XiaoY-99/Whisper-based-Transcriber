@@ -22,8 +22,6 @@ results to an output folder. Supports GPU acceleration when available.
 
 Follow the steps below to set up the environment.
 
-------------------------------------------------------------------------
-
 ## 1. Create a Python Virtual Environment
 
 Linux / macOS: python3 -m venv venv source venv/bin/activate
@@ -69,8 +67,12 @@ automatic text file generation - continual watching of the input folder
 
 ## Folder Structure
 
-project/ │── transcriber.py │── requirements.txt │── README.md │──
-inputs/ (place audio files here) └── outputs/ (transcripts appear here)
+project/
+│── transcriber.py
+│── requirements.txt
+│── README.md
+│── inputs/   (place audio files here)
+└── outputs/  (transcripts appear here)
 
 ------------------------------------------------------------------------
 
