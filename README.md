@@ -66,14 +66,14 @@ automatic text file generation - continual watching of the input folder
 ------------------------------------------------------------------------
 
 ## Folder Structure
-'''
+```
 project/
 │── transcriber.py
 │── requirements.txt
 │── README.md
 │── inputs/   (place audio files here)
 └── outputs/  (transcripts appear here)
-'''
+```
 ------------------------------------------------------------------------
 
 ## GPU Support
