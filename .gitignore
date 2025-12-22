@@ -1,3 +1,7 @@
 venv/
+.venv/ 
+env/
+outputs/
+inputs/
 .vscode/
 __pycache__/

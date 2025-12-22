@@ -18,50 +18,53 @@ results to an output folder. Supports GPU acceleration when available.
 
 ------------------------------------------------------------------------
 
-## Installation Guide
+## Installation
 
 Follow the steps below to set up the environment.
+### 0. Clone repository
+```bash
+git clone <url>
+cd Whisper-based-Transcriber
+```
 
-## 1. Create a Python Virtual Environment
+### 1. Create a Python Virtual Environment
 
-Linux / macOS: python3 -m venv venv source venv/bin/activate
+Linux / macOS: 
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-Windows (PowerShell): python -m venv venv
-.env`\Scripts`{=tex}`\activate`{=tex}
-
+Windows (PowerShell): 
+```bash
+python -m venv venv
+.\venv\Scripts\Activate
+```
 ------------------------------------------------------------------------
 
 ## 2. Install Required Packages
 
 Make sure the virtual environment is activated, then run:
-
+```bash
 pip install -r requirements.txt
-
+```
 ------------------------------------------------------------------------
 
 ## 3. Install FFmpeg (Required)
 
-Ubuntu: sudo apt install ffmpeg
+Ubuntu: 
+```bash
+sudo apt install ffmpeg
+```
 
-macOS (Homebrew): brew install ffmpeg
+macOS (Homebrew): 
+```bash
+brew install ffmpeg
+```
 
-Windows: Download from: https://www.gyan.dev/ffmpeg/builds/ Make sure
-FFmpeg is added to your system PATH.
-
-------------------------------------------------------------------------
-
-## How to Use
-
-1.  Put audio files into the `inputs/` folder.
-
-2.  Run the transcriber:
-
-    python transcriber.py
-
-3.  The transcript text files will be saved in the `outputs/` folder.
-
-The script performs: - audio → WAV conversion - Whisper transcription -
-automatic text file generation - continual watching of the input folder
+Windows: 
+Download from: https://www.gyan.dev/ffmpeg/builds/ 
+Make sure FFmpeg is added to your system PATH.
 
 ------------------------------------------------------------------------
 
@@ -76,18 +79,27 @@ project/
 ```
 ------------------------------------------------------------------------
 
+## How to Use
+
+1.  Put audio files into the `inputs/` folder.
+
+2.  Run the transcriber:
+```bash
+python3 transcriber.py
+```
+
+3.  The transcript text files will be saved in the `outputs/` folder.
+
+The script performs: - audio → WAV conversion - Whisper transcription -
+automatic text file generation - continual watching of the input folder
+
+------------------------------------------------------------------------
+
+
 ## GPU Support
 
 If PyTorch with CUDA is installed, Whisper will automatically use the
 GPU. If CUDA is not available, it will fall back to CPU.
-
-------------------------------------------------------------------------
-
-## .gitignore Recommendation
-
-Add this to your `.gitignore`:
-
-venv/ .venv/ env/
 
 ------------------------------------------------------------------------
 

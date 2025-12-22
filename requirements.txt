@@ -1,5 +1,7 @@
 openai-whisper
-torch==2.8.0+cu129
+torch --index-url https://download.pytorch.org/whl/cu121
+torchvision
+torchaudio
 watchdog==6.0.0
 tqdm==4.67.1
 opencc-python-reimplemented==0.1.7
