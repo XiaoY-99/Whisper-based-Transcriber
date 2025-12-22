@@ -8,8 +8,8 @@ from watchdog.events import FileSystemEventHandler
 from tqdm import tqdm
 import opencc
 
-INPUT_FOLDER = "/home/meihan/trans/inputs"
-OUTPUT_FOLDER = "/home/meihan/trans/outputs"
+INPUT_FOLDER = "/home/username/Whisper-based-Transcriber/inputs"  # change to your own input folder
+OUTPUT_FOLDER = "/home/username/Whisper-based-Transcriber/outputs"  # change to your own output folder
 MODEL_SIZE = "medium"   
 
 

@@ -83,9 +83,11 @@ project/
 
 1.  Put audio files into the `inputs/` folder.
 
+2. Change the input and output paths in `transcribe.py` to your own paths
+
 2.  Run the transcriber:
 ```bash
-python3 transcriber.py
+python3 transcribe.py
 ```
 
 3.  The transcript text files will be saved in the `outputs/` folder.
