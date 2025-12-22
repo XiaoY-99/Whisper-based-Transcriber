@@ -27,25 +27,36 @@ def convert_to_wav(input_file, output_file="temp.wav"):
 
 
 def transcribe_audio(audio_path, output_txt, model, device):
-    """Transcribe one audio file to text using Whisper and show detected language."""
+    """Transcribe one audio file to text using Whisper with timestamps."""
     wav_file = convert_to_wav(audio_path)
 
     print(f"🎙️ Transcribing {audio_path}...")
 
-    # Run transcription (no progress_callback in vanilla whisper)
     result = model.transcribe(
         wav_file,
         verbose=True,
     )
 
-    # Save stranscript
     with open(output_txt, "w", encoding="utf-8") as f:
-        f.write(result["text"])
+        for segment in result["segments"]:
+            start = format_timestamp(segment["start"])
+            end = format_timestamp(segment["end"])
+            text = segment["text"].strip()
 
-    print(f"✅ Saved simplified transcript: {output_txt}")
+            f.write(f"[{start} --> {end}] {text}\n")
 
-    os.remove(wav_file)  # cleanup temp file
+    print(f"✅ Saved timestamped transcript: {output_txt}")
 
+    os.remove(wav_file)
+
+    
+    
+def format_timestamp(seconds: float) -> str:
+    """Convert seconds to HH:MM:SS.mmm format."""
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{secs:06.3f}"
 
 class AudioHandler(FileSystemEventHandler):
     def __init__(self, model, device):
