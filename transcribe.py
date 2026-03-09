@@ -7,10 +7,26 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from tqdm import tqdm
 import opencc
+import re
 
 INPUT_FOLDER = "/home/username/Whisper-based-Transcriber/inputs"  # change to your own input folder
 OUTPUT_FOLDER = "/home/username/Whisper-based-Transcriber/outputs"  # change to your own output folder
 MODEL_SIZE = "medium"   
+
+ZH_CONVERTER = opencc.OpenCC("t2s")
+
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[。！？!?；;…])\s*")
+
+
+def split_sentences(text: str) -> list[str]:
+    text = (text or "").strip()
+    if not text:
+        return []
+    return [p.strip() for p in _SENTENCE_SPLIT_RE.split(text) if p.strip()]
+
+
+def to_simplified_zh(text: str) -> str:
+    return ZH_CONVERTER.convert(text or "")
 
 
 def ensure_output_folder():
@@ -26,7 +42,7 @@ def convert_to_wav(input_file, output_file="temp.wav"):
     return output_file
 
 
-def transcribe_audio(audio_path, output_txt, model, device):
+def transcribe_audio(audio_path, output_txt, model, device, simplified_zh: bool = True, split_to_rows: bool = True):
     """Transcribe one audio file to text using Whisper with timestamps."""
     wav_file = convert_to_wav(audio_path)
 
@@ -34,7 +50,8 @@ def transcribe_audio(audio_path, output_txt, model, device):
 
     result = model.transcribe(
         wav_file,
-        verbose=True,
+        verbose=False,
+        language="zh",
     )
 
     with open(output_txt, "w", encoding="utf-8") as f:
@@ -42,8 +59,18 @@ def transcribe_audio(audio_path, output_txt, model, device):
             start = format_timestamp(segment["start"])
             end = format_timestamp(segment["end"])
             text = segment["text"].strip()
+            if simplified_zh:
+                text = to_simplified_zh(text)
 
-            f.write(f"[{start} --> {end}] {text}\n")
+            if split_to_rows:
+                sentences = split_sentences(text)
+                if sentences:
+                    for s in sentences:
+                        f.write(f"[{start} --> {end}] {s}\n")
+                else:
+                    f.write(f"[{start} --> {end}] {text}\n")
+            else:
+                f.write(f"[{start} --> {end}] {text}\n")
 
     print(f"✅ Saved timestamped transcript: {output_txt}")
 
