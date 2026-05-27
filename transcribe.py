@@ -3,6 +3,7 @@ import subprocess
 import whisper
 import torch
 import time
+import argparse
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from tqdm import tqdm
@@ -42,8 +43,8 @@ def convert_to_wav(input_file, output_file="temp.wav"):
     return output_file
 
 
-def transcribe_audio(audio_path, output_txt, model, device, simplified_zh: bool = True, split_to_rows: bool = True):
-    """Transcribe one audio file to text using Whisper with timestamps."""
+def transcribe_audio(audio_path, output_txt, model, device, simplified_zh: bool = True, split_to_rows: bool = True, with_timestamps: bool = True):
+    """Transcribe one audio file to text using Whisper."""
     wav_file = convert_to_wav(audio_path)
 
     print(f"🎙️ Transcribing {audio_path}...")
@@ -56,23 +57,34 @@ def transcribe_audio(audio_path, output_txt, model, device, simplified_zh: bool 
 
     with open(output_txt, "w", encoding="utf-8") as f:
         for segment in result["segments"]:
-            start = format_timestamp(segment["start"])
-            end = format_timestamp(segment["end"])
             text = segment["text"].strip()
             if simplified_zh:
                 text = to_simplified_zh(text)
 
-            if split_to_rows:
-                sentences = split_sentences(text)
-                if sentences:
-                    for s in sentences:
-                        f.write(f"[{start} --> {end}] {s}\n")
+            if with_timestamps:
+                start = format_timestamp(segment["start"])
+                end = format_timestamp(segment["end"])
+                if split_to_rows:
+                    sentences = split_sentences(text)
+                    if sentences:
+                        for s in sentences:
+                            f.write(f"[{start} --> {end}] {s}\n")
+                    else:
+                        f.write(f"[{start} --> {end}] {text}\n")
                 else:
                     f.write(f"[{start} --> {end}] {text}\n")
             else:
-                f.write(f"[{start} --> {end}] {text}\n")
+                if split_to_rows:
+                    sentences = split_sentences(text)
+                    if sentences:
+                        for s in sentences:
+                            f.write(f"{s}\n")
+                    else:
+                        f.write(f"{text}\n")
+                else:
+                    f.write(f"{text}\n")
 
-    print(f"✅ Saved timestamped transcript: {output_txt}")
+    print(f"✅ Saved transcript: {output_txt}")
 
     os.remove(wav_file)
 
@@ -86,23 +98,29 @@ def format_timestamp(seconds: float) -> str:
     return f"{hours:02d}:{minutes:02d}:{secs:06.3f}"
 
 class AudioHandler(FileSystemEventHandler):
-    def __init__(self, model, device):
+    def __init__(self, model, device, with_timestamps: bool = True):
         self.model = model
         self.device = device
+        self.with_timestamps = with_timestamps
 
     def on_created(self, event):
         if event.is_directory:
             return
         if event.src_path.lower().endswith((".mp3", ".wav", ".m4a", ".flac", ".ogg")):
-            # Give time for file copy to finish
             time.sleep(1)
             output_txt = os.path.join(
                 OUTPUT_FOLDER, os.path.splitext(os.path.basename(event.src_path))[0] + ".txt"
             )
-            transcribe_audio(event.src_path, output_txt, self.model, self.device)
+            transcribe_audio(event.src_path, output_txt, self.model, self.device, with_timestamps=self.with_timestamps)
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Transcribe audio files using Whisper")
+    parser.add_argument("--no-timestamps", action="store_true", help="Output plain text without timestamps")
+    args = parser.parse_args()
+
+    with_timestamps = not args.no_timestamps
+
     ensure_output_folder()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -114,10 +132,10 @@ def main():
         if file.lower().endswith((".mp3", ".wav", ".m4a", ".flac", ".ogg")):
             input_path = os.path.join(INPUT_FOLDER, file)
             output_txt = os.path.join(OUTPUT_FOLDER, os.path.splitext(file)[0] + ".txt")
-            transcribe_audio(input_path, output_txt, model, device)
+            transcribe_audio(input_path, output_txt, model, device, with_timestamps=with_timestamps)
 
     # Watch for new files
-    event_handler = AudioHandler(model, device)
+    event_handler = AudioHandler(model, device, with_timestamps=with_timestamps)
     observer = Observer()
     observer.schedule(event_handler, INPUT_FOLDER, recursive=False)
     observer.start()

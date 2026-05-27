@@ -85,12 +85,28 @@ project/
 
 2. Change the input and output paths in `transcribe.py` to your own paths
 
-2.  Run the transcriber:
+3.  Run the transcriber:
 ```bash
 python3 transcribe.py
 ```
 
-3.  The transcript text files will be saved in the `outputs/` folder.
+4.  The transcript text files will be saved in the `outputs/` folder.
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `--no-timestamps` | Output plain text without timestamps |
+
+**Examples:**
+
+```bash
+# With timestamps (default)
+python3 transcribe.py
+
+# Without timestamps (plain text)
+python3 transcribe.py --no-timestamps
+```
 
 The script performs: - audio → WAV conversion - Whisper transcription -
 automatic text file generation - continual watching of the input folder
